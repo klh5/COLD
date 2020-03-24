@@ -176,6 +176,8 @@ headers = ["x", "y", "band", "start_date", "end_date", "start_val", "end_val", "
 
 dirsplit = args.outfile.rsplit('/', 1)   
 
+output_dir = dirsplit[0]
+
 if(tile):
     filename = "{}_{}".format(tile, dirsplit[1])
 
@@ -252,7 +254,7 @@ if(args.use_spatial):
     
     print("Generating output file...")
     
-    kmeans_out = "kmeans_out_{}.kea".format(tile)
+    kmeans_out = output_dir + "/kmeans_out_{}.kea".format(tile)
     
     # Output to KEA file
     x_size = len(output.x.values)
@@ -276,7 +278,7 @@ if(args.use_spatial):
         
     output_raster = None
     
-    kmeans_poly = "clusters_{}.shp".format(tile)
+    kmeans_poly = output_dir + "/clusters_{}.shp".format(tile)
     
     print("Polygonizing...")
     
@@ -302,7 +304,9 @@ if(args.use_spatial):
     
     clusters = clusters.reset_index(drop=True)
     
-    clusters.to_file('final_clusters_{}.shp'.format(tile))
+    final_clusters_file = output_dir + '/final_clusters_{}.shp'.format(tile)
+    
+    clusters.to_file(final_clusters_file)
     
     num_clusters = len(clusters)
     
