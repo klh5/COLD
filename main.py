@@ -24,53 +24,25 @@ import fcntl
 from scipy.stats.distributions import chi2
 
 # Data cube product recipe
-cloud_free_ls_sref = construct_from_yaml("""
+combined_ls_sref = construct_from_yaml("""
     collate:
-      - transform: apply_mask
-        mask_measurement_name: cloud_mask
-        input:
-            juxtapose:
-              - product: ls7_arcsi_sref_bangladesh_tm
-                measurements: [red, green, NIR, SWIR1, SWIR2]
-              - transform: make_mask
-                input:
-                    product: ls7_arcsi_cloud_bangladesh_tm 
-                flags:
-                    cloud_mask: clear
-                mask_measurement_name: cloud_mask
-      - transform: apply_mask
-        mask_measurement_name: cloud_mask
-        input:
-            juxtapose:
-              - product: ls5_arcsi_sref_bangladesh_tm
-                measurements: [red, green, NIR, SWIR1, SWIR2]
-              - transform: make_mask
-                input:
-                    product: ls5_arcsi_cloud_bangladesh_tm
-                flags:
-                    cloud_mask: clear
-                mask_measurement_name: cloud_mask
-      - transform: apply_mask
-        mask_measurement_name: cloud_mask
-        input:
-             juxtapose:
-               - product: ls8_arcsi_sref_bangladesh_tm
-                 measurements: [red, green, NIR, SWIR1, SWIR2]
-               - transform: make_mask
-                 input:
-                     product: ls8_arcsi_cloud_bangladesh_tm
-                 flags:
-                     cloud_mask: clear
-                 mask_measurement_name: cloud_mask
+        - product: ls4_arcsi_sref_global_mangroves
+          measurements: [red, green, NIR, SWIR1, SWIR2]
+        - product: ls5_arcsi_sref_global_mangroves   
+          measurements: [red, green, NIR, SWIR1, SWIR2]
+        - product: ls7_arcsi_sref_global_mangroves   
+          measurements: [red, green, NIR, SWIR1, SWIR2]
+        - product: ls8_arcsi_sref_global_mangroves   
+          measurements:[red, green, NIR, SWIR1, SWIR2]
     """)
 
-def getDataset(time, poly):
+def getDataset(time, poly, crs):
     
-    fetch_ds = cloud_free_ls_sref.query(dc, geopolygon=poly, time=time)
+    fetch_ds = combined_ls_sref.query(dc, geopolygon=poly, time=time, resolution=(-30, 30), output_crs='EPSG:{}'.format(crs))
 
-    grouped_ds = cloud_free_ls_sref.group(fetch_ds)
+    grouped_ds = combined_ls_sref.group(fetch_ds)
             
-    ds = cloud_free_ls_sref.fetch(grouped_ds)    
+    ds = combined_ls_sref.fetch(grouped_ds)    
             
     ds = ds.sortby('time')
 
@@ -128,6 +100,7 @@ parser = argparse.ArgumentParser(description="Run CCDC algorithm using Data Cube
 parser.add_argument('-f', '--outfile', default="output.csv", help="The output file.")
 parser.add_argument('-s', '--use_spatial', default=False, action='store_true', help="Whether to use spatial clustering to speed up computation. False if not specified.")
 parser.add_argument('-t', '--use_temporal', default=False, action='store_true', help="Whether to use temporal jumps to speed up computation. False if not specified.")
+parser.add_argument('-g', '--gridfile', type=int, default=None, help="Shapefile containing gridded polygon of the area.")
 parser.add_argument('-i', '--tile', type=int, default=None, help="The tile to process.")
 parser.add_argument('-N', '--infile', default=None, help="The NetCDF file to process.")
 parser.add_argument('-r', '--re_init', type=int, default=0, help="Days to wait before re-initializing the model.")
@@ -136,6 +109,7 @@ parser.add_argument('-k', '--k_clusters', type=int, default=5, help="Number of c
 parser.add_argument('-M', '--min_area', type=int, default=360000, help="Minimum area for clusters.")
 parser.add_argument('-B', '--buffer', type=int, default=150, help="Buffer value for reducing cluster edges.")
 parser.add_argument('-p', '--processes', type=int, default=4, help="Number of processes to use.")
+parser.add_argument('-E', '--epsg', default=None, help="EPSG code if product doesn't specify (number only e.g. 4326).")
 
 args = parser.parse_args()
 
@@ -145,7 +119,7 @@ print("Loading data...")
 
 if(tile):
     
-    grd_path = "/home/a.klh5/mangrove_classifier/sundarbans/sundarbans_grid.shp"
+    grd_path = args.gridfile
         
     grd = gpd.read_file(grd_path)
     
@@ -155,9 +129,9 @@ if(tile):
     
     json_poly = json.loads(gpd.GeoSeries([curr_poly]).to_json())
     
-    dc_geom = geometry.Geometry(json_poly['features'][0]['geometry'], geometry.CRS("EPSG:3106"))
+    dc_geom = geometry.Geometry(json_poly['features'][0]['geometry'], geometry.CRS("EPSG:{}".format(args.epsg)))
     
-    ds = getDataset(('1988-01-01', '2018-12-31'), dc_geom)
+    ds = getDataset(('1988-01-01', '2020-12-31'), dc_geom, args.epsg)
     
     dc.close()
     
