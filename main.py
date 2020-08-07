@@ -100,7 +100,7 @@ parser = argparse.ArgumentParser(description="Run CCDC algorithm using Data Cube
 parser.add_argument('-f', '--outfile', default="output.csv", help="The output file.")
 parser.add_argument('-s', '--use_spatial', default=False, action='store_true', help="Whether to use spatial clustering to speed up computation. False if not specified.")
 parser.add_argument('-t', '--use_temporal', default=False, action='store_true', help="Whether to use temporal jumps to speed up computation. False if not specified.")
-parser.add_argument('-g', '--gridfile', type=int, default=None, help="Shapefile containing gridded polygon of the area.")
+parser.add_argument('-g', '--gridfile', default=None, help="Shapefile containing gridded polygon of the area.")
 parser.add_argument('-i', '--tile', type=int, default=None, help="The tile to process.")
 parser.add_argument('-N', '--infile', default=None, help="The NetCDF file to process.")
 parser.add_argument('-r', '--re_init', type=int, default=0, help="Days to wait before re-initializing the model.")
