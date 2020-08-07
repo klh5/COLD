@@ -97,7 +97,7 @@ def writeOutPixel(x, y):
         fcntl.flock(output, fcntl.LOCK_UN)
     
 parser = argparse.ArgumentParser(description="Run CCDC algorithm using Data Cube.", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-parser.add_argument('-f', '--outfile', default="output.csv", help="The output file.")
+parser.add_argument('-f', '--outfile', default="./output.csv", help="The output file.")
 parser.add_argument('-s', '--use_spatial', default=False, action='store_true', help="Whether to use spatial clustering to speed up computation. False if not specified.")
 parser.add_argument('-t', '--use_temporal', default=False, action='store_true', help="Whether to use temporal jumps to speed up computation. False if not specified.")
 parser.add_argument('-g', '--gridfile', default=None, help="Shapefile containing gridded polygon of the area.")
