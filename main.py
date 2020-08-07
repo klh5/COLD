@@ -33,7 +33,7 @@ combined_ls_sref = construct_from_yaml("""
         - product: ls7_arcsi_sref_global_mangroves   
           measurements: [red, green, NIR, SWIR1, SWIR2]
         - product: ls8_arcsi_sref_global_mangroves   
-          measurements:[red, green, NIR, SWIR1, SWIR2]
+          measurements: [red, green, NIR, SWIR1, SWIR2]
     """)
 
 def getDataset(time, poly, crs):
