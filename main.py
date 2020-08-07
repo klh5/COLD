@@ -38,9 +38,9 @@ combined_ls_sref = construct_from_yaml("""
 
 def getDataset(time, poly, crs):
     
-    fetch_ds = combined_ls_sref.query(dc, geopolygon=poly, time=time, resolution=(-30, 30), output_crs='EPSG:{}'.format(crs))
+    fetch_ds = combined_ls_sref.query(dc, geopolygon=poly, time=time)
 
-    grouped_ds = combined_ls_sref.group(fetch_ds)
+    grouped_ds = combined_ls_sref.group(fetch_ds, resolution=(-30, 30), output_crs='EPSG:{}'.format(crs))
             
     ds = combined_ls_sref.fetch(grouped_ds)    
             
