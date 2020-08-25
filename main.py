@@ -80,8 +80,6 @@ def runChangeDetection(x, y):
     input_ts = transformToArray(input_ts)
     
     runCOLD(input_ts, bands, output_file, args.use_temporal, args.re_init, ch_thresh, args.alpha, x=x, y=y)
-    
-    print("{}, {}".format(x, y))
 
 def writeOutPixel(x, y):  
     
