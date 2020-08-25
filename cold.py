@@ -76,7 +76,7 @@ def tidyData(pixel_ts):
     return pixel_ts
 
 def writeRows(fp, rows):
-
+    
     with open(fp, 'a') as output:
         fcntl.flock(output, fcntl.LOCK_EX)
         writer = csv.writer(output)
@@ -87,9 +87,11 @@ def initModel(pixel_data, bands, init_obs, alpha):
 
     """Finds a sequence of 6/12/18/24 consecutive clear observations without any change, to initialize the model"""
 
+    #print("Starting initialization...")
+    
     num_bands = len(bands)
     
-    # Subset first n clear observations for model initialisation (must cover at least 1 year)
+    # Subset first n clear observations for model initialisation 
     curr_obs_list = pixel_data[:init_obs,]
 
     # Start off with the model uninitialized
@@ -101,6 +103,8 @@ def initModel(pixel_data, bands, init_obs, alpha):
 
     # Model initialization sequence - keeps going until a clear set of observations is found
     while(model_init == False):
+        
+        #print("Trying to initialize...")
 
         # Check if there are not enough data points left to initialise the models
         num_data_points = len(curr_obs_list)
@@ -109,20 +113,22 @@ def initModel(pixel_data, bands, init_obs, alpha):
             #print("Could not find a period of no change for model initialization.")
             return None
         
-        init_years = getNumYears(curr_obs_list[:,0])
+        init_years = getNumYears(curr_obs_list[:,0]) # Select first column (dates)
         
         extra_vals = 0
         
         while(init_years < 1):
             
-            curr_obs_list = pixel_data[num_iters:init_obs+num_iters+1,:] # Add an observation
+            #print("Adding points to get 1 year of data...")
             
             extra_vals += 1
+            
+            curr_obs_list = pixel_data[num_iters:init_obs+num_iters+extra_vals,] # Add an observation
             
             init_years = getNumYears(curr_obs_list[:,0])
             
             # Check if we have reached the end of the remaining data and covered < 1 year
-            if(len(curr_obs_list) == len(pixel_data) and init_years < 1):
+            if((curr_obs_list[-1, 0] == pixel_data[-1, 0]) and init_years < 1):
                 return None
  
         # Re-initialize the models
@@ -341,6 +347,7 @@ def findChange(pixel_data, bands, init_obs, output_file, use_temporal, re_init, 
             change_vectors.append(v_diff)
 
         if(change_flag == 6):
+            
             #print("Change detected!")
             
             # We have six consecutive deviating values
@@ -382,7 +389,7 @@ def runCOLD(input_data, bands, output_file, use_temporal, re_init, ch_thresh, al
 
     """The main function which runs the CCDC algorithm. Loops until there are not enough observations
         left after a breakpoint to attempt to initialize a new model."""
-    
+
     rows = [] 
     
     global model_list

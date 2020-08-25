@@ -80,6 +80,8 @@ def runChangeDetection(x, y):
     input_ts = transformToArray(input_ts)
     
     runCOLD(input_ts, bands, output_file, args.use_temporal, args.re_init, ch_thresh, args.alpha, x=x, y=y)
+    
+    print("{}, {}".format(x, y))
 
 def writeOutPixel(x, y):  
     
@@ -139,6 +141,8 @@ else:
     
     ds = xr.open_dataset(args.infile)
 
+print("Setting up variables and output files...")
+
 bands = list(ds.data_vars)
 
 # Change threshold based on chi square distribution
@@ -167,6 +171,8 @@ with open(output_file, 'w+') as output:
     writer.writerow(headers)
 
 if(args.use_spatial):
+    
+    print("Using spatial speed-up...")
 
     datasets = []
     
@@ -354,7 +360,9 @@ if(args.use_spatial):
 
 else:
     final_coords = all_coords
-    
+
+print("Processing individual pixels...")
+
 # Run processes for this key                                        
 with Pool(processes=args.processes) as pool:
     pool.starmap(runChangeDetection, final_coords)  
